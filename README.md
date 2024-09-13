@@ -22,6 +22,9 @@ Jars and directories on the classpath(--class-path -classpath -cp) are treated a
 - open module M ...: opens all packages in module M to reflection at runtime
 
 ## Tools
+### Maven surefire plugin
+To run in module mode with Java 21 you need 3.3.0+. Earlier versions run with Java 21, but silentfly fall back to classpath mode when the org.objectweb.asm.ClassReader fails to read a module-info.class file.
+
 ### jdeps
 The jdeps tool analyzes class files and JAR files to determine package-level or class-level dependencies. It can generate a module descriptor for a JAR file.
 ### jmod

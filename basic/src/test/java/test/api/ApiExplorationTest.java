@@ -18,6 +18,9 @@ public class ApiExplorationTest {
         System.out.println("Module.packages: " + module.getPackages());
         System.out.println("Module.layer: " + module.getLayer());
         ModuleDescriptor descriptor = module.getDescriptor();
+        /* There is not always a descriptor, for example for the unnamed module if surefire 3.2.1 is used
+        as it fails to load the module-info.class file if Java SE 21+ is used.
+        */
         System.out.println("Module.descriptor: " + descriptor);
         if(descriptor != null) {
             System.out.println("Module.descriptor.name: " + descriptor.name());
@@ -28,6 +31,12 @@ public class ApiExplorationTest {
             for (ModuleDescriptor.Requires require : descriptor.requires()) {
                 System.out.printf("  %s%s", require.name(), require.accessFlags());
             }
+        }
+        ModuleLayer layer = module.getLayer();
+        if(layer != null) {
+            System.out.println("Module.layer.configuration: " + layer.configuration());
+            System.out.println("Module.layer.parents: " + layer.parents());
+            System.out.println("Module.layer.modules: " + layer.modules());
         }
 
         log.info(module.toString());
