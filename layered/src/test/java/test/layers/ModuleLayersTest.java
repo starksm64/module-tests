@@ -50,15 +50,29 @@ public class ModuleLayersTest {
 
     @Test
     public void testOverrideModuleLayerAService() {
+        Path basicPath = Path.of("../basic/target/classes");
+        ModuleLayer basicLayer = createModuleLayer(basicPath);
         Path modulePath = Path.of("target/classes");
-        ModuleLayer basicLayer = createModuleLayer(modulePath);
         ModuleLayer thisLayer = createModuleLayer(modulePath, basicLayer);
 
         Optional<Module> layeredModule = thisLayer.findModule("tag.jboss.layered");
         Assertions.assertTrue(layeredModule.isPresent(), "tag.jboss.layered module should be found");
 
-
         ServiceLoader<AService> loader = ServiceLoader.load(thisLayer, AService.class);
+        loader.iterator().forEachRemaining(System.out::println);
+    }
+    @Test
+    public void testOverrideModuleLayerAServiceCL() {
+        Path basicPath = Path.of("../basic/target/classes");
+        ModuleLayer basicLayer = createModuleLayer(basicPath);
+        Path modulePath = Path.of("target/classes");
+        ModuleLayer thisLayer = createModuleLayer(modulePath, basicLayer);
+
+        Optional<Module> layeredModule = thisLayer.findModule("tag.jboss.layered");
+        Assertions.assertTrue(layeredModule.isPresent(), "tag.jboss.layered module should be found");
+
+        ClassLoader layeredLoader = thisLayer.findLoader("tag.jboss.layered");
+        ServiceLoader<AService> loader = ServiceLoader.load(AService.class, layeredLoader);
         loader.iterator().forEachRemaining(System.out::println);
     }
 

@@ -175,6 +175,10 @@ contains tag.jboss.auto.impl
 contains tag.jboss.auto.provider
 ----
 
+[NOTE]
+----
+This uses a local 2.2-SNAPSHOT build of module-info to work with Java SE 21 target artifacts. The earlier 2.1 release uses a version of asm that was complaining about not supporting the Java SE 21 class file version.
+----
 
 ==== automod
 A transformation of the auto non-modular jar into a modular jar using the maven dependency plugin and a local src/main/java/module-info.java. While this does work by setting the maven-dependency-plugin phase to process-sources, it is wonky because in the IDE the module-info.java shows errors complaining about the packages not being read. More hacking with generated-sources/generated-classes may work, but I was trying to see if a module-info.java could easily be added to existing jar without source.

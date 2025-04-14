@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Artifact Configuration -->
-    <artifactId>autoinfo</artifactId>
+    <artifactId>automod</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Automatic+module-info.java Module Tests</name>
