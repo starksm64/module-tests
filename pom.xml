@@ -21,11 +21,11 @@
     <!-- Properties -->
     <properties>
         <!-- Versioning -->
-        <version.arquillian_core>1.9.1.Final</version.arquillian_core>
+        <version.arquillian_core>1.9.4.Final</version.arquillian_core>
         <version.shrinkwrap>3.2.1</version.shrinkwrap>
         <version.junit5>5.10.3</version.junit5>
 
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.release>23</maven.compiler.release>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +67,8 @@
         <!--module>auto</module-->
         <module>basic</module>
         <module>open</module>
+        <module>layered</module>
+        <module>service-loader</module>
     </modules>
 
 </project>

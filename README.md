@@ -25,6 +25,37 @@ Jars and directories on the classpath(--class-path -classpath -cp) are treated a
 ### Maven surefire plugin
 To run in module mode with Java 21 you need 3.3.0+. Earlier versions run with Java 21, but silentfly fall back to classpath mode when the org.objectweb.asm.ClassReader fails to read a module-info.class file.
 
+### Maven compiler plugin
+I have seen this error:
+```bash
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:testCompile (default-testCompile) on project jakartaee-bom-test: Execution default-testCompile of goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:testCompile failed: Can't compile test sources when main sources are missing a module descriptor -> [Help 1]
+
+```
+
+for a project that was a test only module, it was inherriting a build/resources configuration that was placing a license file into target/classes/META-INF directory. This was causing the compiler to look for a module-info.class file in the main sources directory. The solution was to add the following configuration to the submodule to override the behavior of the maven-resources-plugin:
+```xml
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+```
+
 ### jdeps
 The jdeps tool analyzes class files and JAR files to determine package-level or class-level dependencies. It can generate a module descriptor for a JAR file.
 ### jmod
@@ -43,4 +74,16 @@ The `sun.misc.Unsafe` class is a part of the Java Platform API, but it is not pa
 ## Test Modules
 - auto
 - basic
-- open
+### open
+An open module is a module that has all of its packages open for reflection. This means that any code can access the classes and members of the packages in the module, even if they are not public.
+```java
+/**
+ * This module exports all module and opens them for reflection.
+ */
+open module tag.jboss.open {
+    exports tag.jboss.modules.open.api;
+    exports tag.jboss.modules.open.spi;
+    exports tag.jboss.modules.open.impl;
+    provides tag.jboss.modules.open.spi.SerializationService with tag.jboss.modules.open.impl.ProviderOfSerializationService;
+}
+```

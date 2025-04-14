@@ -1,0 +1,8 @@
+name: tag.jboss.auto
+exports:
+  - package: tag.jboss.auto.api
+  - package: tag.jboss.auto.spi
+provides:
+  - serviceType: tag.jboss.auto.api.AutoPublicApi
+    with:
+      - tag.jboss.auto.impl.ImplOfAutoPublicAPI
