@@ -123,6 +123,12 @@ JEPs are coming out to replace `sun.misc.Unsafe` class.
 
 * https://openjdk.org/jeps/454[JEP 454]:  Foreign Function & Memory API - In adddition to interop with data and code outside the JVM, it has off-heap memory replacements for allocateMemory/reallocateMemory.
 
+=== API Notes
+
+==== ModuleFinder
+When wanting to load a module, using `ModuleFinder.find(String)` to see if the module exists before calling `ModuleFinder.of(Path)`.
+
+Similarly, when creating a `ModuleLayer`, the `Configuration` instance used should have a before `ModuleFinder` from the `ModuleFinder::ofSystem` static method to avoid creating a duplicate module that is unable to read itself.
 
 === Test Modules
 
