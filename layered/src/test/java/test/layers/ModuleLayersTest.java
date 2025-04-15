@@ -223,7 +223,7 @@ public class ModuleLayersTest {
     }
 
     /**
-     * Create a new ModuleLayer with the given modulePath and parent layer. This will use the ModuleFinder#ofSystem()
+     * Create a new ModuleLayer with the given modulePath and parent layer. This will only use the ModuleFinder.of(Path)
      * @param modulePath - the path to the module to load
      * @param parent - the parent layer to use
      * @return the new ModuleLayer

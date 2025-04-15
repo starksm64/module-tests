@@ -126,9 +126,25 @@ JEPs are coming out to replace `sun.misc.Unsafe` class.
 === API Notes
 
 ==== ModuleFinder
-When wanting to load a module, using `ModuleFinder.find(String)` to see if the module exists before calling `ModuleFinder.of(Path)`.
+When wanting to load a module, you should first check `ModuleFinder.find(String)` to see if the module exists before calling `ModuleFinder.of(Path)`.
 
-Similarly, when creating a `ModuleLayer`, the `Configuration` instance used should have a before `ModuleFinder` from the `ModuleFinder::ofSystem` static method to avoid creating a duplicate module that is unable to read itself.
+Similarly, when creating a `ModuleLayer`, the `Configuration` instance used should have a before `ModuleFinder` from the `ModuleFinder::ofSystem` static method to avoid creating a duplicate module that is unable to read itself. This would cause this code to fail to find a service via `ServiceLoader`:
+
+[source,java]
+----
+        Path modulePath = Path.of("../basic/target/classes");
+        ModuleLayer basicLayer = createModuleLayer(modulePath); <1>
+        Optional<Module> basicModule = basicLayer.findModule("tag.jboss.basic"); <2>
+        ClassLoader basicLoader = basicLayer.findLoader("tag.jboss.basic");
+        AService aServiceBL = ServiceLoader
+                .load(AService.class, basicLoader) <3>
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("AService not found"));
+
+----
+<1> This code uses the `ModuleFinder.of(Path)` as the before finder which results in a duplicate "tag.jboss.basic" module being created.
+<2> This "tag.jboss.basic" module fails to equate to ModuleLayer.boot().findModule("tag.jboss.basic") which was used to load the `AService` interface class.
+<3> The `load()` call returns nothing because a check of whether the module from <2> can reated the module of the `AService.class` fails because there are two "tag.jboss.basic" Module instances.
 
 === Test Modules
 
