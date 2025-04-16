@@ -4,7 +4,7 @@ This repository contains recommendations and tests for the Java Platform Module 
 
 === JPMS Overview
 
-=== Classpath vs Modulepath
+==== Classpath vs Modulepath
 
 Jars and directories on the classpath(–class-path -classpath -cp) are
 treated as a single, monolithic collection of classes in an unnamed
