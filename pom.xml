@@ -68,6 +68,7 @@
         <module>basic</module>
         <module>open</module>
         <module>layered</module>
+        <module>legacy</module>
         <module>service-loader</module>
     </modules>
 

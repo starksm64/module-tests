@@ -37,6 +37,8 @@ to specific modules A,B,… (qualified open)
 * open module M …: opens all packages in module M to reflection at
 runtime
 
+==== Java Command Line Options
+
 === Tools
 
 ==== Maven surefire plugin
@@ -107,7 +109,7 @@ starksm@Scotts-Mac-Studio basic % mvn -Dsurefire.useModulePath=false -Dtest=test
 testLoadResourceCL: unnamed module @bd8db5a <1>
 configPropsURL = file:/Users/starksm/Dev/JBoss/module-tests/basic/target/classes/config.properties
 ----
-<1> Test is in the unamed module rather than "basic.test"
+<1> Test is in the unamed module rather than "test.tag.jboss.basic"
 
 ===== Inconsistencies between IDE and Surefire
 Every test package should be exported in the src/test/java/module-info.java descriptor. I have seen where you add a new test package, forget to export it and see the test run fine from the maven command line, but fail when run in the with a message like:
@@ -170,6 +172,35 @@ behavior of the maven-resources-plugin:
                 </executions>
             </plugin>
 ----
+
+=== Maven Dependency Plugin
+You can see what dependencies are modularized with the maven-dependency-plugin dependency:list command. For example, if you go into the basic module and run `mvn dependency:list` you will see the dependencies with the module type:
+
+[source,console]
+----
+starksm@Scotts-Mac-Studio basic % mvn dependency:list
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< jboss.tag.modules:basic >-----------------------
+[INFO] Building Basic Module Tests 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.7.0:list (default-cli) @ basic ---
+[INFO] 
+[INFO] The following files have been resolved:
+[INFO]    org.junit.jupiter:junit-jupiter-engine:jar:5.10.3:test -- module org.junit.jupiter.engine
+[INFO]    org.junit.platform:junit-platform-engine:jar:1.10.3:test -- module org.junit.platform.engine
+[INFO]    org.apiguardian:apiguardian-api:jar:1.1.2:test -- module org.apiguardian.api
+[INFO]    org.junit.jupiter:junit-jupiter-api:jar:5.10.3:test -- module org.junit.jupiter.api
+[INFO]    org.opentest4j:opentest4j:jar:1.3.0:test -- module org.opentest4j
+[INFO]    org.junit.platform:junit-platform-commons:jar:1.10.3:test -- module org.junit.platform.commons
+[INFO]    jboss.tag.modules:open:jar:1.0.0-SNAPSHOT:test -- module tag.jboss.open
+[INFO]    jboss.tag.modules:auto:jar:1.0.0-SNAPSHOT:test -- module tag.jboss.auto [auto] <1>
+[INFO]    jboss.tag.modules:legacy:jar:1.0.0-SNAPSHOT:test -- module legacy (auto) <2>
+----
+<1> [auto] is in black indicating a specified Automatic-Module-Name header value.
+<2> (auto) is in yellow indicating a generated automatic module name derived from the artifact name.
 
 === jdeps
 
