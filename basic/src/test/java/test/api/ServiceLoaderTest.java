@@ -14,6 +14,10 @@ import java.util.ServiceLoader;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ServiceLoaderTest {
+    /**
+     * Illustrates that attempting to use a service that is not declared in the module-info.java results in
+     * a ServiceConfigurationError.
+     */
     @Test
     public void testUndelcaredBServiceUsage() {
         System.out.println("ServiceLoaderTest.testUndelcaredBServiceUsage");

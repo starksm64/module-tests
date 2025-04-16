@@ -1,0 +1,7 @@
+{
+    "name": "some-resource",
+    "version": "1.0.0",
+    "description": "A sample resource configuration file.",
+    "author": "JBoss Tag",
+    "license": "MIT"
+}

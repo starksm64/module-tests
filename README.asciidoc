@@ -43,9 +43,98 @@ runtime
 
 To run in module mode with Java 21 you need 3.5.0+. Earlier versions run
 with Java 21, but silentfly fall back to classpath mode when the
-org.objectweb.asm.ClassReader fails to read a module-info.class file.
+org.objectweb.asm.ClassReader fails to read a module-info.class file. While the asm issue is fixed with versions post 3.3.1, other issues show up unless the later versions are used.
 
-==== Maven compiler plugin
+===== ClassPath vs ModulePath mode
+To run with JPMS enabled, you need to create a src/test/java/module-info.java descriptor for your test module. This describes the required modules, service and exports test packages to the test framework. You can explicitly disable the use of modules 
+
+The service-loader/pom.xml includes executions of tests using the classpath and modulepath. This is the `maven-surefire-plugin` setup:
+
+[source,xml]
+----
+<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <executions>
+                    <execution> <1>
+                        <id>default-test</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                    <execution> <2>
+                        <id>cp</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <useModulePath>false</useModulePath> <3>
+                            <includes>
+                                <include>cp/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution> <4>
+                        <id>mp</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>mp/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+----
+[subs=+callouts]
+<1> Disable the default-test execution mode which would attempt to run all tests using modules since there is a src/test/java/module-info.java
+<2> A classpath execution configuration that forces classpath mode via <3>. 
+<3> Disable modulepath mode via the `useModulePath` config element.4
+<4> A modulepath execution configuration that relies on `useModulePath` defaulting to true.
+
+You can also just force this behavior from the commandline by specifying `-Dsurefire.useModulePath=false`:
+
+[source,bash]
+----
+starksm@Scotts-Mac-Studio basic % mvn -Dsurefire.useModulePath=false -Dtest=test.resource.ResourceLoadingTest test
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running test.resource.ResourceLoadingTest
+testLoadResourceCL: unnamed module @bd8db5a <1>
+configPropsURL = file:/Users/starksm/Dev/JBoss/module-tests/basic/target/classes/config.properties
+----
+<1> Test is in the unamed module rather than "basic.test"
+
+===== Inconsistencies between IDE and Surefire
+Every test package should be exported in the src/test/java/module-info.java descriptor. I have seen where you add a new test package, forget to export it and see the test run fine from the maven command line, but fail when run in the with a message like:
+
+```java
+java.lang.reflect.InaccessibleObjectException: Unable to make public test.resource.ResourceLoadingTest() accessible: module basic.test does not "exports test.resource" to module org.junit.platform.commons
+
+	at java.base/java.lang.reflect.AccessibleObject.throwInaccessibleObjectException(AccessibleObject.java:388)
+	at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:364)
+	at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:312)
+	at java.base/java.lang.reflect.Constructor.checkCanSetAccessible(Constructor.java:194)
+	at java.base/java.lang.reflect.Constructor.setAccessible(Constructor.java:187)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+```
+
+I'm guessing surefire is adding an export of any package it finds a test in while the IDE is just relying on the test module to have this correct. In earlier versions it was also running the test on the classpath.
+
+With the latest 3.5.2 `maven-surefire-plugin` it reports the same error as the IDE if the test package is not exported:
+
+```bash
+[ERROR] Errors: 
+[ERROR]   ResourceLoadingTest.testLoadResourceCL » InaccessibleObject Unable to make public test.resource.ResourceLoadingTest() accessible: module basic.test does not "exports test.resource" to module org.junit.platform.commons
+```
+
+===== Maven compiler plugin
 
 I have seen this error:
 
@@ -246,5 +335,5 @@ open module tag.jboss.open {
 Tests related to reflection issues that require opening packages to frameworks using reflection.
 
 ==== service-loader
-Tests related to `ServiceLoader` behaviors.
+Tests related to `ServiceLoader` behaviors when run from the classpath vs modulepath.
 

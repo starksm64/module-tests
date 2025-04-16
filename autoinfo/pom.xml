@@ -67,7 +67,7 @@
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <includes>**/*.class,**/*.xml</includes>
+                                    <includes>**/*.class,**/*.xml,*.json</includes>
                                     <excludes>**/*test.class</excludes>
                                 </artifactItem>
                             </artifactItems>
